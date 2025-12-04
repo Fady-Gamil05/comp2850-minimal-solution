@@ -115,6 +115,8 @@ private suspend fun ApplicationCall.handleCreateTaskError(
     }
 }
 
+// I used AI to help me format the banner, but I wrote and understood the code myself.
+
 private suspend fun ApplicationCall.handleCreateTaskSuccess(
     store: TaskStore,
     title: String,
@@ -125,16 +127,32 @@ private suspend fun ApplicationCall.handleCreateTaskSuccess(
 
     if (isHtmxRequest()) {
         val paginated = paginateTasks(store, query, 1)
-        val statusHtml =
-            messageStatusFragment(
-                """Task "${task.title}" added successfully.""",
-            )
+
+        // More visible success banner for better user feedback
+        val statusHtml = """
+            <div id="status"
+                 hx-swap-oob="true"
+                 role="status"
+                 aria-live="polite"
+                 style="
+                    background-color:#1e7f3d;
+                    color:white;
+                    padding:12px;
+                    border-radius:6px;
+                    font-weight:bold;
+                    margin-bottom:10px;
+                 ">
+                Task "${task.title}" added successfully.
+            </div>
+        """.trimIndent()
+
         respondTaskArea(paginated, statusHtml, htmxTrigger = "task-added")
     } else {
         response.headers.append("Location", redirectPath(query, 1))
         respond(HttpStatusCode.SeeOther)
     }
 }
+
 
 /**
  * Handle task toggle (mark complete/incomplete).
